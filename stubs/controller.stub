@@ -1,0 +1,75 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\{{modelClass}};
+use Illuminate\Http\Request;
+
+class {{controllerClass}} extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index()
+    {
+        return new {{pluralResourceClass}}({{modelClass}}::all());
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $input = $request->all();
+        $result = {{modelClass}}::create($input);
+
+        return response($result, 201);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param \App\{{modelClass}} ${{modelVar}}
+     * @return \Illuminate\Http\Response
+     * @internal param $id
+     * @internal param \App\{{modelClass}} ${{modelVar}}
+     */
+    public function show({{modelClass}} ${{modelVar}})
+    {
+        return new {{singleResourceClass}}(${{modelVar}});
+    }
+
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request $request
+     * @param  \App\{{modelClass}}             ${{modelVar}}
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, {{modelClass}} ${{modelVar}})
+    {
+        $input = $request->all();
+        $result = ${{modelVar}}->update($input);
+
+        return response(['updated' => $result], 201);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \App\{{modelClass}} ${{modelVar}}
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy({{modelClass}} ${{modelVar}})
+    {
+        $result = ${{modelVar}}->delete();
+
+        return response(['deleted' => $result], 202);
+    }
+}
