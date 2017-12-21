@@ -30,6 +30,5 @@
 				"Ramosmerino\\Scaffold\\ScaffoldServiceProvider"
 			]
 		}
-	},
-	"minimum-stability": "dev"
+	}
 }
