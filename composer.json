@@ -1,0 +1,22 @@
+{
+	"name": "cristobalramos/laravel-5-rest-api-scaffold",
+	"description": "Creates Migrations, Seeders, Factories, Tests, Models, Controllers and Resources with one command. Delete everything with another.",
+	"keywords": [
+		"laravel",
+		"generators",
+		"rest api",
+		"scaffold"
+	],
+	"license": "MIT",
+	"require": {
+		"php": ">=5.6.0",
+		"illuminate/support": "~5.0",
+		"laracasts/generators": "^1.1"
+	},
+	"authors": [
+		{
+			"name": "Cristobal Ramos Merino",
+			"email": "cristobal@ramosmerino.cl"
+		}
+	]
+}
