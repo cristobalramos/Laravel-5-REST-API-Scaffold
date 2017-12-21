@@ -4,7 +4,7 @@ namespace Ramosmerino\Scaffold;
 
 use Illuminate\Support\ServiceProvider;
 
-class GeneratorsServiceProvider extends ServiceProvider
+class ScaffoldServiceProvider extends ServiceProvider
 {
     /**
      * Bootstrap the application services.
