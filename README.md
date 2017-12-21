@@ -7,6 +7,7 @@ If you're familiar with [Laravel 5 Generators Extended](https://github.com/larac
 ## Commands
 - `scaffold:create --model --plural --schema` Creates Migration, Seeder, Factory, Test, Model, Controller and Resources.
 - `scaffold:flush` Drop Tables, Views, Triggers and Procedures without touching the Grants.
+
 :warning: Only scaffold:create is full operative. Don't use scaffold:flush if you don't understand the code.
 
 ## Usage on Laravel 5.5
