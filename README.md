@@ -14,7 +14,7 @@ If you're familiar with [Laravel 5 Generators Extended](https://github.com/larac
 ### Step 1: Install Through Composer
 
 ```
-composer require cristobalramos/Laravel-5-REST-API-Scaffold --dev
+composer require ramosmerino/laravel-5-rest-api-scaffold --dev
 ```
 
 ### Step 2: Run Artisan
