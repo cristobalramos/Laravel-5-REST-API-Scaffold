@@ -1,6 +1,4 @@
-# Laravel 5 Extended Generators
-
-[![Build Status](https://travis-ci.org/cristobalramos/Laravel-5-REST-API-Scaffold.svg?branch=master)](https://travis-ci.org/cristobalramos/Laravel-5-REST-API-Scaffold)
+# Laravel 5 REST API Scaffold
 
 If you're familiar with [Laravel 5 Generators Extended](https://github.com/laracasts/Laravel-5-Generators-Extended), then this is basically the same thing but with only one command and some nice things.
 
