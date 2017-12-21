@@ -32,7 +32,7 @@ class ScaffoldServiceProvider extends ServiceProvider
     private function registerCreate()
     {
         $this->app->singleton('command.ramosmerino.create', function ($app) {
-            return $app['Ramosmerino\Scaffold\Commands\ScaffoldCreateCommand'];
+            return $app['Ramosmerino\Scaffold\Commands\ScaffoldCreate'];
         });
 
         $this->commands('command.ramosmerino.create');
