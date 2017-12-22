@@ -5,7 +5,7 @@ namespace Ramosmerino\Scaffold\Commands;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 
-class ScaffoldFlush extends Command
+class ScaffoldFlushCommand extends Command
 {
     /**
      * The name and signature of the console command.

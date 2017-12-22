@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use Illuminate\Filesystem\Filesystem;
 use Laracasts\Generators\Migrations\SchemaParser;
 
-class ScaffoldCreate extends Command
+class ScaffoldCreateCommand extends Command
 {
     /**
      * The name and signature of the console command.
