@@ -123,7 +123,7 @@ class ScaffoldCreateCommand extends Command
      */
     protected function compileModelStub()
     {
-        $stub = $this->files->get(__DIR__ . '/stubs/model.stub');
+        $stub = $this->files->get(__DIR__ . '/../stubs/model.stub');
         $this->replaceModel($stub)
           ->fillFields($stub);
 
@@ -137,7 +137,7 @@ class ScaffoldCreateCommand extends Command
      */
     protected function compileControllerStub()
     {
-        $stub = $this->files->get(__DIR__ . '/stubs/controller.stub');
+        $stub = $this->files->get(__DIR__ . '/../stubs/controller.stub');
         $this->replaceController($stub)
           ->replaceModel($stub)
           ->replaceResource($stub);
