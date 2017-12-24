@@ -107,7 +107,7 @@ class ScaffoldFlushCommand extends Command
         if ($migrations) {
             $this->removeMigrations();
         }
-        if ($seeder) {
+        if ($seeders) {
             $this->removeSeeds();
         }
         if ($tests) {
