@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\{{singleResourceClass}};
+use App\Http\Resources\{{pluralResourceClass}};
 use App\{{modelClass}};
 use Illuminate\Http\Request;
 
@@ -70,6 +72,6 @@ class {{controllerClass}} extends Controller
     {
         $result = ${{modelVar}}->delete();
 
-        return response(['deleted' => $result], 202);
+        return response(['deleted' => $result], 204);
     }
 }

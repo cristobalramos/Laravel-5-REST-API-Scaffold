@@ -42,7 +42,7 @@ Test created successfully.
 
 app\Dog.php
 
-```
+```php
 <?php
 
 namespace App;
@@ -58,7 +58,8 @@ class Dog extends Model
 ```
 
 app\Http\Controllers\DogController.php
-```
+
+```php
 <?php
 
 namespace App\Http\Controllers;

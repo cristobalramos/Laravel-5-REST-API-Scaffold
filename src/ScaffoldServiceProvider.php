@@ -36,4 +36,16 @@ class ScaffoldServiceProvider extends ServiceProvider
         });
         $this->commands('command.ramosmerino.create');
     }
+
+	/**
+     * Register the scaffold:flush command.
+     */
+    private function registerCreate()
+    {
+        $this->app->singleton('command.ramosmerino.flush', function ($app) {
+            return $app['Ramosmerino\Scaffold\Commands\ScaffoldFlushCommand'];
+        });
+        $this->commands('command.ramosmerino.flush');
+    }
+
 }

@@ -13,7 +13,7 @@ class ScaffoldCreateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'scaffold:create {--model=} {--plural=} {--schema=} {--migrate}';
+    protected $signature = 'scaffold:create {--model=} {--plural=} {--schema=} {--migrate} {--create="model,controller,resource,factory,migration,seed,test"}';
 
     /**
      * The console command description.
@@ -33,6 +33,16 @@ class ScaffoldCreateCommand extends Command
      * @var Composer
      */
     private $composer;
+
+    /**
+     * @var
+     */
+    private $schema;
+
+    /**
+     * @var Array
+     */
+    private $fields;
 
     /**
      * Create a new command instance.
@@ -56,20 +66,52 @@ class ScaffoldCreateCommand extends Command
     {
         extract($this->options());
 
-        $this->makeModel();
-        $this->makeController();
+        $this->schema = (new SchemaParser)->parse($schema);
+        $this->fields = array_values(array_map(function ($field) {
+            return '\'' . $field . '\'';
+        }, array_filter(
+          array_column($this->schema, 'name'),
+          function ($item) {
+              return !str_contains($item, ['_id', 'deleted_at', 'created_at', 'updated_at']);
+          })));
 
-        $this->call('make:migration:schema',
-          ['name' => 'create_' . strtolower($plural) . '_table', '--model' => ucwords($model), '--schema' => $schema]);
-        $this->call('make:seeder', ['name' => ucwords($model) . 'TableSeeder']);
-        $this->call('make:resource', ['name' => ucwords($model) . 'Resource']);
-        $this->call('make:resource', ['name' => ucwords($plural) . 'Resource', '--collection']);
-        $this->call('make:factory', ['name' => ucwords($model) . 'Factory', '--model' => ucwords($model)]);
-        $this->call('make:test', ['name' => ucwords($model) . 'Test']);
+        if ($this->willCreate('model')) {
+            $this->makeModel();
+        }
+        if ($this->willCreate('controller')) {
+            $this->makeController();
+        }
+        if ($this->willCreate('seeder')) {
+            $this->makeSeeder();
+        }
+
+        if ($this->willCreate('migration')) {
+            $this->call('make:migration:schema',
+              [
+                'name' => 'create_' . strtolower($plural) . '_table',
+                '--model' => ucwords($model),
+                '--schema' => $schema
+              ]);
+        }
+        if ($this->willCreate('resource')) {
+            $this->call('make:resource', ['name' => ucwords($model) . 'Resource']);
+            $this->call('make:resource', ['name' => ucwords($plural) . 'Resource', '--collection']);
+        }
+        if ($this->willCreate('factory')) {
+            $this->call('make:factory', ['name' => ucwords($model) . 'Factory', '--model' => ucwords($model)]);
+        }
+        if ($this->willCreate('test')) {
+            $this->call('make:test', ['name' => ucwords($model) . 'Test']);
+        }
 
         if ($migrate) {
             $this->call('migrate');
         }
+    }
+
+    protected function willCreate($concept)
+    {
+        return str_contains($this->option('create'), $concept);
     }
 
     protected function makeModel()
@@ -96,8 +138,20 @@ class ScaffoldCreateCommand extends Command
         $this->composer->dumpAutoloads();
     }
 
+    protected function makeSeeder()
+    {
+        $path = $this->getSeederPath();
+        if ($this->files->exists($path)) {
+            return $this->error('Seed already exists!');
+        }
+
+        $this->files->put($path, $this->compileSeederStub());
+        $this->info('Seeder created successfully.');
+        $this->composer->dumpAutoloads();
+    }
+
     /**
-     * Get the path to where we should store the controller.
+     * Get the path to where we should store the model.
      *
      * @return string
      */
@@ -114,6 +168,16 @@ class ScaffoldCreateCommand extends Command
     protected function getControllerPath()
     {
         return base_path() . '/app/Http/Controllers/' . ucwords($this->option('model')) . 'Controller.php';
+    }
+
+    /**
+     * Get the path to where we should store the seeder.
+     *
+     * @return string
+     */
+    protected function getSeederPath()
+    {
+        return base_path() . '/database/seeds/' . ucwords($this->option('model')) . 'TableSeeder.php';
     }
 
     /**
@@ -141,6 +205,22 @@ class ScaffoldCreateCommand extends Command
         $this->replaceController($stub)
           ->replaceModel($stub)
           ->replaceResource($stub);
+
+        return $stub;
+    }
+
+    /**
+     * Compile the controller stub.
+     *
+     * @return string
+     */
+    protected function compileSeederStub()
+    {
+        $stub = $this->files->get(__DIR__ . '/../stubs/seeder.stub');
+        $this->replaceController($stub)
+          ->replaceModel($stub)
+          ->replacePlural($stub)
+          ->fillFields($stub);
 
         return $stub;
     }
@@ -187,19 +267,21 @@ class ScaffoldCreateCommand extends Command
         return $this;
     }
 
+    /**
+     * @param  string $stub
+     * @return $this
+     */
+    protected function replacePlural(&$stub)
+    {
+        $plural = strtolower($this->option('plural'));
+        $stub = str_replace('{{plural}}', $plural, $stub);
+
+        return $this;
+    }
+
     protected function fillFields(&$stub)
     {
-        $schema = (new SchemaParser)->parse($this->option('schema'));
-        $fields = array_map(function ($field) {
-            return '\'' . $field . '\'';
-        }, array_column($schema, 'name'));
-
-
-        $filteredFields = array_filter($fields, function ($item) {
-            return !str_contains($item, ['_id', 'deleted_at', 'created_at', 'updated_at']);
-        });
-
-        $stub = str_replace('{{fields}}', implode(',', $filteredFields), $stub);
+        $stub = str_replace('{{fields}}', implode(',', $this->fields), $stub);
 
         return $this;
     }
