@@ -13,7 +13,7 @@ class ScaffoldCreateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'scaffold:create {--model=} {--plural=} {--schema=} {--migrate} {--create="model,controller,resource,factory,migration,seed,test"}';
+    protected $signature = 'scaffold:create {--model=} {--plural=} {--schema=} {--migrate} {--create="model,controller,resource,factory,migration,seeder,test"}';
 
     /**
      * The console command description.
@@ -89,7 +89,6 @@ class ScaffoldCreateCommand extends Command
             $this->call('make:migration:schema',
               [
                 'name' => 'create_' . strtolower($plural) . '_table',
-                '--model' => ucwords($model),
                 '--schema' => $schema
               ]);
         }
