@@ -24,6 +24,7 @@ class ScaffoldServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerCreate();
+        $this->registerFlush();
     }
 
     /**
@@ -40,7 +41,7 @@ class ScaffoldServiceProvider extends ServiceProvider
 	/**
      * Register the scaffold:flush command.
      */
-    private function registerCreate()
+    private function registerFlush()
     {
         $this->app->singleton('command.ramosmerino.flush', function ($app) {
             return $app['Ramosmerino\Scaffold\Commands\ScaffoldFlushCommand'];
