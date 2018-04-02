@@ -13,7 +13,7 @@ class ScaffoldCreateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'scaffold:create {--model=} {--table=} {--schema=} {--single} {--json} {--flush} {--migrate} {--create="model,controller,resource,factory,migration,seeder,test"}';
+    protected $signature = 'scaffold:create {--model=} {--table=} {--schema=} {--json} {--flush} {--migrate} {--create="model,controller,resource,factory,migration,seeder,test"}';
 
     /**
      * The console command description.
@@ -40,6 +40,8 @@ class ScaffoldCreateCommand extends Command
     private $schema;
 
     /**
+     * The fields of schema
+     * 
      * @var Array
      */
     private $fields;
@@ -72,7 +74,7 @@ class ScaffoldCreateCommand extends Command
         }, array_filter(
             array_column($this->schema, 'name'),
 
-            function ($item) {
+            function ($item) { //TODO: Debería devolver campos que terminen en _id
                 return !str_contains($item, ['_id', 'deleted_at', 'created_at', 'updated_at']);
             }
         )));
@@ -92,12 +94,19 @@ class ScaffoldCreateCommand extends Command
         }
 
         if ($this->willCreate('migration')) {
+            $command = 'make:migration';
+            $args = [
+                'name' => 'create_' . strtolower($table) . '_table',
+            ];
+
+            if ($schema) {
+                $command .= ':schema';
+                $args['--schema'] = $schema;
+            }
+
             $this->call(
-                'make:migration:schema',
-                [
-                    'name' => 'create_' . strtolower($table) . '_table',
-                    '--schema' => $schema
-                ]
+                $command,
+                $args
             );
         }
         if ($this->willCreate('resource')) {
@@ -109,7 +118,6 @@ class ScaffoldCreateCommand extends Command
         if ($this->willCreate('test')) {
             $this->call('make:test', ['name' => ucwords($model) . 'Test']);
         }
-
         if ($migrate) {
             $this->call('migrate');
         }
@@ -244,7 +252,7 @@ class ScaffoldCreateCommand extends Command
      */
     protected function replaceController(&$stub)
     {
-        $controllerClass = ucwords(camel_case($this->option('model') . 'Controller'));
+        $controllerClass = ucwords($this->option('model') . 'Controller');
         $stub = str_replace('{{controllerClass}}', $controllerClass, $stub);
 
         return $this;
@@ -256,8 +264,8 @@ class ScaffoldCreateCommand extends Command
      */
     protected function replaceModel(&$stub)
     {
-        $modelClass = ucwords(camel_case($this->option('model')));
-        $modelVar = strtolower($this->option('model'));
+        $modelClass = ucwords($this->option('model'));
+        $modelVar = camel_case($this->option('model'));
         $stub = str_replace('{{modelClass}}', $modelClass, $stub);
         $stub = str_replace('{{modelVar}}', $modelVar, $stub);
 
@@ -282,7 +290,7 @@ class ScaffoldCreateCommand extends Command
      */
     protected function replaceResource(&$stub)
     {
-        $resourceClass = ucwords(camel_case($this->option('model') . 'Resource'));
+        $resourceClass = ucwords($this->option('model') . 'Resource');
         $stub = str_replace('{{resourceClass}}', $resourceClass, $stub);
 
         return $this;
