@@ -1,0 +1,23 @@
+<?php
+
+use App\{{modelClass}};
+use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
+
+class {{modelClass}}TableSeeder extends Seeder
+{
+    /**
+     * Run the database seeds.
+     *
+     * @return void
+     */
+    public function run()
+    {
+        DB::table('{{plural}}')->delete();
+        $json = File::get('database/data/{{plural}}.json');
+        $data = json_decode($json);
+        foreach ($data as $obj) {
+            {{modelClass}}::create((array) $obj);
+        }
+    }
+}
