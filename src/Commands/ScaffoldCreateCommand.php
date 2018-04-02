@@ -13,7 +13,7 @@ class ScaffoldCreateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'scaffold:create {--model=} {--plural=} {--table=} {--schema=} {--single} {--json} {--flush} {--migrate} {--create="model,controller,resource,factory,migration,seeder,test"}';
+    protected $signature = 'scaffold:create {--model=} {--table=} {--schema=} {--single} {--json} {--flush} {--migrate} {--create="model,controller,resource,factory,migration,seeder,test"}';
 
     /**
      * The console command description.
@@ -70,18 +70,16 @@ class ScaffoldCreateCommand extends Command
         $this->fields = array_values(array_map(function ($field) {
             return '\'' . $field . '\'';
         }, array_filter(
-          array_column($this->schema, 'name'),
+            array_column($this->schema, 'name'),
 
-          function ($item) {
-              return !str_contains($item, ['_id', 'deleted_at', 'created_at', 'updated_at']);
-          })));
-		  
-		if(!$table && !$plural) {
-			$table = $model;
-		}
-		elseif(!$table){
-			$table = $plural;
-		}
+            function ($item) {
+                return !str_contains($item, ['_id', 'deleted_at', 'created_at', 'updated_at']);
+            }
+        )));
+
+        if (!$table) {
+            $table = $model;
+        }
 
         if ($this->willCreate('model')) {
             $this->makeModel();
@@ -94,17 +92,16 @@ class ScaffoldCreateCommand extends Command
         }
 
         if ($this->willCreate('migration')) {
-            $this->call('make:migration:schema',
-              [
-                'name' => 'create_' . strtolower($table) . '_table',
-                '--schema' => $schema
-              ]);
+            $this->call(
+                'make:migration:schema',
+                [
+                    'name' => 'create_' . strtolower($table) . '_table',
+                    '--schema' => $schema
+                ]
+            );
         }
         if ($this->willCreate('resource')) {
             $this->call('make:resource', ['name' => ucwords($model) . 'Resource']);
-            if (!$single && $plural) {
-                $this->call('make:resource', ['name' => ucwords($plural) . 'Resource', '--collection']);
-            }
         }
         if ($this->willCreate('factory')) {
             $this->call('make:factory', ['name' => ucwords($model) . 'Factory', '--model' => ucwords($model)]);
@@ -198,7 +195,7 @@ class ScaffoldCreateCommand extends Command
     {
         $stub = $this->files->get(__DIR__ . '/../stubs/model.stub');
         $this->replaceModel($stub)
-          ->fillFields($stub);
+            ->fillFields($stub);
 
         return $stub;
     }
@@ -212,8 +209,8 @@ class ScaffoldCreateCommand extends Command
     {
         $stub = $this->files->get(__DIR__ . '/../stubs/controller.stub');
         $this->replaceController($stub)
-          ->replaceModel($stub)
-          ->replaceResource($stub);
+            ->replaceModel($stub)
+            ->replaceResource($stub);
 
         return $stub;
     }
@@ -228,12 +225,12 @@ class ScaffoldCreateCommand extends Command
         if ($this->option('json')) {
             $stub = $this->files->get(__DIR__ . '/../stubs/seeder_json.stub');
             $this->replaceModel($stub)
-              ->replacePlural($stub);
+                ->replaceTable($stub);
         } else {
             $stub = $this->files->get(__DIR__ . '/../stubs/seeder.stub');
             $this->replaceModel($stub)
-              ->replacePlural($stub)
-              ->fillFields($stub);
+                ->replaceTable($stub)
+                ->fillFields($stub);
         }
 
         return $stub;
@@ -271,12 +268,10 @@ class ScaffoldCreateCommand extends Command
      * @param  string $stub
      * @return $this
      */
-    protected function replaceResource(&$stub)
+    protected function replaceTable(&$stub)
     {
-        $pluralResourceClass = ucwords(camel_case($this->option('plural') . 'Resource'));
-        $singleResourceClass = ucwords(camel_case($this->option('model') . 'Resource'));
-        $stub = str_replace('{{pluralResourceClass}}', $pluralResourceClass, $stub);
-        $stub = str_replace('{{singleResourceClass}}', $singleResourceClass, $stub);
+        $table = strtolower($this->option('table'));
+        $stub = str_replace('{{table}}', $table, $stub);
 
         return $this;
     }
@@ -285,10 +280,10 @@ class ScaffoldCreateCommand extends Command
      * @param  string $stub
      * @return $this
      */
-    protected function replacePlural(&$stub)
+    protected function replaceResource(&$stub)
     {
-        $plural = strtolower($this->option('plural'));
-        $stub = str_replace('{{plural}}', $plural, $stub);
+        $resourceClass = ucwords(camel_case($this->option('model') . 'Resource'));
+        $stub = str_replace('{{resourceClass}}', $resourceClass, $stub);
 
         return $this;
     }
