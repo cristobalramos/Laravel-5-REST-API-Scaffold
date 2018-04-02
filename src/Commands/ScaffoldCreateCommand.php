@@ -13,7 +13,7 @@ class ScaffoldCreateCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'scaffold:create {--model=} {--plural=} {--schema=} {--migrate} {--create="model,controller,resource,factory,migration,seeder,test"}';
+    protected $signature = 'scaffold:create {--model=} {--plural=} {--table=} {--schema=} {--single} {--json} {--flush} {--migrate} {--create="model,controller,resource,factory,migration,seeder,test"}';
 
     /**
      * The console command description.
@@ -71,9 +71,17 @@ class ScaffoldCreateCommand extends Command
             return '\'' . $field . '\'';
         }, array_filter(
           array_column($this->schema, 'name'),
+
           function ($item) {
               return !str_contains($item, ['_id', 'deleted_at', 'created_at', 'updated_at']);
           })));
+		  
+		if(!$table && !$plural) {
+			$table = $model;
+		}
+		elseif(!$table){
+			$table = $plural;
+		}
 
         if ($this->willCreate('model')) {
             $this->makeModel();
@@ -88,13 +96,15 @@ class ScaffoldCreateCommand extends Command
         if ($this->willCreate('migration')) {
             $this->call('make:migration:schema',
               [
-                'name' => 'create_' . strtolower($plural) . '_table',
+                'name' => 'create_' . strtolower($table) . '_table',
                 '--schema' => $schema
               ]);
         }
         if ($this->willCreate('resource')) {
             $this->call('make:resource', ['name' => ucwords($model) . 'Resource']);
-            $this->call('make:resource', ['name' => ucwords($plural) . 'Resource', '--collection']);
+            if (!$single && $plural) {
+                $this->call('make:resource', ['name' => ucwords($plural) . 'Resource', '--collection']);
+            }
         }
         if ($this->willCreate('factory')) {
             $this->call('make:factory', ['name' => ucwords($model) . 'Factory', '--model' => ucwords($model)]);
@@ -215,11 +225,16 @@ class ScaffoldCreateCommand extends Command
      */
     protected function compileSeederStub()
     {
-        $stub = $this->files->get(__DIR__ . '/../stubs/seeder.stub');
-        $this->replaceController($stub)
-          ->replaceModel($stub)
-          ->replacePlural($stub)
-          ->fillFields($stub);
+        if ($this->option('json')) {
+            $stub = $this->files->get(__DIR__ . '/../stubs/seeder_json.stub');
+            $this->replaceModel($stub)
+              ->replacePlural($stub);
+        } else {
+            $stub = $this->files->get(__DIR__ . '/../stubs/seeder.stub');
+            $this->replaceModel($stub)
+              ->replacePlural($stub)
+              ->fillFields($stub);
+        }
 
         return $stub;
     }
