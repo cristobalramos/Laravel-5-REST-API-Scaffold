@@ -32,6 +32,9 @@ class ScaffoldFlushCommand extends Command
      */
     private $modelList;
 
+    private $schema;
+    private $tables;
+
     /**
      * Create a new command instance.
 
@@ -77,6 +80,9 @@ class ScaffoldFlushCommand extends Command
                     exit('DropTables command aborted.');
                 }
             }
+
+            $this->{'config' . ucwords($this->connection)}();
+
             DB::beginTransaction();
             $this->{$this->getFunctionName('tables')}();
             $this->comment(PHP_EOL . "Tables eliminated." . PHP_EOL);
@@ -94,6 +100,7 @@ class ScaffoldFlushCommand extends Command
 
         if ($models) {
             $this->removeModels();
+            $this->info('Models removed');
         }
         if ($controllers) {
             $this->removeControllers();
@@ -266,7 +273,7 @@ class ScaffoldFlushCommand extends Command
             $tablelist[] = $table->$colname;
         }
         $tablelist = implode(',', $tablelist);
-        DB::connection()->getPdo()->exec("DROP TABLE {$tablelist}");
+        DB::statement("DROP TABLE {$tablelist}");
         DB::statement('SET FOREIGN_KEY_CHECKS = 1');
 
     }
@@ -280,7 +287,7 @@ class ScaffoldFlushCommand extends Command
         }
         $viewlist = implode(',', $viewlist);
 
-        DB::connection()->getPdo()->exec("DROP VIEW {$viewlist}");
+        DB::statement("DROP VIEW {$viewlist}");
     }
 
     private function dropMysqlTriggers()
@@ -288,7 +295,7 @@ class ScaffoldFlushCommand extends Command
         $colname = 'trigger';
         $triggers = DB::select("SHOW TRIGGERS");
         foreach ($triggers as $trigger) {
-            DB::connection()->getPdo()->exec("DROP TRIGGER {$trigger->$colname}");
+            DB::cstatement("DROP TRIGGER {$trigger->$colname}");
         }
     }
 
@@ -297,19 +304,45 @@ class ScaffoldFlushCommand extends Command
         $colname = 'Name';
         $procedures = DB::select("SHOW PROCEDURE STATUS WHERE db LIKE '{$this->database}'");
         foreach ($procedures as $procedure) {
-            DB::connection()->getPdo()->exec("DROP PROCEDURE {$procedure->$colname};");
+            DB::statement("DROP PROCEDURE {$procedure->$colname};");
         }
+    }
+
+    private function configPgsql()
+    {
+        $tables = DB::table('pg_tables')->where('schemaname', 'public')->pluck('tablename');
+        $this->tables = implode(',', $tables->toArray());
     }
 
     private function dropPgsqlTables()
     {
-        $schemas = DB::table('information_schema.schemata')->pluck('schema_name')->filter(function ($item) {
-            return !str_contains($item, ['pg_', 'information_schema']);
-        })->values();
+        DB::statement("DROP TABLE IF EXISTS {$this->tables} CASCADE");
+    }
 
-        $tables = DB::table('pg_tables')->whereIn('schemaname', $schemas)->pluck('tablename');
-        $tablelist = implode(',', $tables->toArray());
-        DB::connection()->getPdo()->exec("DROP TABLE IF EXISTS {$tablelist} CASCADE");
+    private function dropPgsqlViews()
+    {
+        $views = DB::table('information_schema.views')->where([
+          ['table_catalog', $this->database],
+          ['table_schema', 'public']
+        ])->pluck('table_name');
+        if (empty($views)) {
+            DB::statement("DROP VIEW {$views}");
+        }
+    }
+
+    private function dropPgsqlTriggers()
+    {
+        $triggers = DB::table('information_schema.triggers')
+          ->where('trigger_schema', 'public')
+          ->pluck('trigger_name');
+        if (empty($triggers)) {
+            DB::statement("DROP TRIGGER {$triggers}");
+        }
+    }
+
+    private function dropPgsqlProcedures()
+    {
     }
 }
+
 
