@@ -203,6 +203,7 @@ class ScaffoldCreateCommand extends Command
     {
         $stub = $this->files->get(__DIR__ . '/../stubs/model.stub');
         $this->replaceModel($stub)
+            ->replaceTable($stub)
             ->fillFields($stub);
 
         return $stub;
