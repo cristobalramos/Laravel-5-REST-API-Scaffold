@@ -3,7 +3,7 @@
 If you're familiar with [Laravel 5 Generators Extended](https://github.com/laracasts/Laravel-5-Generators-Extended), then this is basically the same thing but with only one command and some nice things.
 
 ## Commands
-- `scaffold:create --model --plural --schema` Creates Migration, Seeder, Factory, Test, Model, Controller and Resources.
+- `scaffold:create --model  --schema` Creates Migration, Seeder, Factory, Test, Model, Controller and Resource.
 - `scaffold:flush` Drop Tables, Views, Triggers and Procedures without touching the Grants.
 
 :warning: Only scaffold:create is full operative. Don't use scaffold:flush if you don't understand the code.
@@ -24,7 +24,7 @@ Run `php artisan` from the console, and you'll see the new commands in the `scaf
 ## Example
 
 ```
-php artisan scaffold:create --model=Dog --plural=Dogs --schema="name:string,age:tinyinteger"
+php artisan scaffold:create --model=Dog --schema="name:string,age:tinyinteger"
 ```
 
 In a fresh Laravel installation should return:
@@ -34,7 +34,6 @@ Model created successfully.
 Controller created successfully.
 Migration created successfully.
 Seeder created successfully.
-Resource created successfully.
 Resource created successfully.
 Factory created successfully.
 Test created successfully.
@@ -76,7 +75,7 @@ class DogController extends Controller
      */
     public function index()
     {
-        return new DogsResource(Dog::all());
+        return DogResource::collection(Dog::all());
     }
 
     /**

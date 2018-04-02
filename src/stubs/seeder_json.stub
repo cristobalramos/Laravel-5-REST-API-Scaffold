@@ -13,8 +13,8 @@ class {{modelClass}}TableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('{{plural}}')->delete();
-        $json = File::get('database/data/{{plural}}.json');
+        DB::table('{{table}}')->delete();
+        $json = File::get('database/data/{{table}}.json');
         $data = json_decode($json);
         foreach ($data as $obj) {
             {{modelClass}}::create((array) $obj);

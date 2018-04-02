@@ -12,7 +12,7 @@ class {{modelClass}}TableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('{{plural}}')->insert([
+        DB::table('{{table}}')->insert([
 			{{fields}}
         ]);
     }

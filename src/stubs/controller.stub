@@ -2,8 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Resources\{{singleResourceClass}};
-use App\Http\Resources\{{pluralResourceClass}};
+use App\Http\Resources\{{resourceClass}};
 use App\{{modelClass}};
 use Illuminate\Http\Request;
 
@@ -16,7 +15,7 @@ class {{controllerClass}} extends Controller
      */
     public function index()
     {
-        return new {{pluralResourceClass}}({{modelClass}}::all());
+        return {{resourceClass}}::collection({{modelClass}}::all());
     }
 
     /**
@@ -43,7 +42,7 @@ class {{controllerClass}} extends Controller
      */
     public function show({{modelClass}} ${{modelVar}})
     {
-        return new {{singleResourceClass}}(${{modelVar}});
+        return new {{resourceClass}}(${{modelVar}});
     }
 
 

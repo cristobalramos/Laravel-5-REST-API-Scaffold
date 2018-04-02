@@ -12,7 +12,7 @@ class ScaffoldDropCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'scaffold:drop {--model=} {--plural=} {--drop="model,controller,resource,factory,migration,seeder,test"}';
+    protected $signature = 'scaffold:drop {--model=} {--drop="model,controller,resource,factory,migration,seeder,test"}';
 
     /**
      * The console command description.
@@ -59,76 +59,129 @@ class ScaffoldDropCommand extends Command
         if ($this->willDrop('controller')) {
             $this->dropController();
         }
-		if ($this->willDrop('resource')) {
-			$this->dropResource();
-		}
-		if ($this->willDrop('factory')) {
-			$this->dropFactory();
-		}
-		if ($this->willDrop('migration')) {
-			$this->dropMigration();
-		}
+        if ($this->willDrop('resource')) {
+            $this->dropResource();
+        }
+        if ($this->willDrop('factory')) {
+            $this->dropFactory();
+        }
+        if ($this->willDrop('migration')) {
+            $this->dropMigration();
+        }
         if ($this->willDrop('seeder')) {
             $this->dropSeeder();
         }
-		if ($this->willDrop('test')) {
-			$this->dropTest();
-		}
+        if ($this->willDrop('test')) {
+            $this->dropTest();
+        }
     }
 
     protected function willDrop($concept)
     {
         return str_contains($this->option('drop'), $concept);
     }
-	
-	protected function dropFile($type, ...$paths) {
-		foreach($paths as $path) {
-		if (!$this->files->exists($path)) {
-            $this->error($type . ' don\'t exists!');
-        } else {
-        $this->files->delete($path);
-        $this->info($type . ' drop successfully.');
-        $this->composer->dumpAutoloads();
-		}
-		}
-	}
 
+    protected function dropFile($type, ...$paths)
+    {
+        foreach ($paths as $path) {
+            if (!$this->files->exists($path)) {
+                $this->error($type . ' don\'t exists!');
+            } else {
+                $this->files->delete($path);
+                $this->info($type . ' drop successfully.');
+                $this->composer->dumpAutoloads();
+            }
+        }
+    }
+
+    /**
+     * dropModel()
+     * 
+     * Delete the model file
+     *
+     * @return void
+     */
     protected function dropModel()
     {
         $this->dropFile('Model', $this->getModelPath());
     }
 
+    /**
+     * dropController()
+     * 
+     * Delete the controller file
+     *
+     * @return void
+     */
     protected function dropController()
     {
         $this->dropFile('Controller', $this->getControllerPath());
     }
-	
-	protected function dropResource()
+
+    /**
+     * dropResource()
+     * 
+     * Delete the controller resource file
+     *
+     * @return void
+     */
+    protected function dropResource()
     {
-        $this->dropFile('Resource', $this->getSingleResourcePath(), $this->getPluralResourcePath());
+        $this->dropFile('Resource', $this->getResourcePath());
     }
-	
-	protected function dropFactory()
+
+    /**
+     * dropFactory()
+     * 
+     * Delete the factory file
+     *
+     * @return void
+     */
+    protected function dropFactory()
     {
         $this->dropFile('Factory', $this->getFactoryPath());
     }
-	
-	protected function dropMigration()
+
+
+    /**
+     * dropMigratrion()
+     * 
+     * Delete the migration file
+     *
+     * @return void
+     */
+    protected function dropMigration()
     {
         $this->dropFile('Migration', $this->getMigrationPath());
     }
 
+    /**
+     * dropSeeder()
+     * 
+     * Delete the seeder file
+     *
+     * @return void
+     */
     protected function dropSeeder()
     {
         $this->dropFile('Seeder', $this->getSeederPath());
     }
-	
-	protected function dropTest()
+
+    /**
+     * dropTest()
+     * 
+     * Delete the test file
+     *
+     * @return void
+     */
+    protected function dropTest()
     {
         $this->dropFile('Test', $this->getTestPath());
     }
 
     /**
+     * getModelPath()
+     * 
      * Get the path to where we should store the model.
      *
      * @return string
@@ -147,35 +200,41 @@ class ScaffoldDropCommand extends Command
     {
         return base_path() . '/app/Http/Controllers/' . ucwords($this->option('model')) . 'Controller.php';
     }
-    
+
     /**
-     * @param  string $stub
-     * @return $this
+     * Get the path to where we should store the resource controller for single instance
+     * 
+     * @return string
      */
-    protected function getSingleResourcePath()
+    protected function getResourcePath()
     {
-		 return base_path() . '/app/Http/Resources/' . ucwords(camel_case($this->option('model') . 'Resource.php'));
+        return base_path() . '/app/Http/Resources/' . ucwords(camel_case($this->option('model') . 'Resource.php'));
     }
-	
-	protected function getPluralResourcePath()
+
+    /**
+     * Get the path for store the factory
+     *
+     * @return string
+     */
+    protected function getFactoryPath()
     {
-		return base_path() . '/app/Http/Resources/' . ucwords(camel_case($this->option('plural') . 'Resource.php'));
-	}
-	
-	protected function getFactoryPath()
+        return base_path() . '/database/factories/' . ucwords($this->option('model') . 'Factory.php');
+    }
+
+    /**
+     * Get the path to store the migration
+     *
+     * @return string
+     */
+    protected function getMigrationPath()
     {
-		return base_path() . '/database/factories/' . ucwords($this->option('model') . 'Factory.php');
-	}
-	
-	protected function getMigrationPath()
-    {
-		$path = base_path() . '/database/migrations/';
-		$files = glob($path . '*.php');
-		
-		return ucwords($this->option('model') . 'Factory.php');
-	}
-	
-	/**
+        $path = base_path() . '/database/migrations/';
+        $files = glob($path . '*.php');
+
+        return ucwords($this->option('model') . 'Factory.php');
+    }
+
+    /**
      * Get the path to where we should store the seeder.
      *
      * @return string
@@ -184,9 +243,14 @@ class ScaffoldDropCommand extends Command
     {
         return base_path() . '/database/seeds/' . ucwords($this->option('model')) . 'TableSeeder.php';
     }
-	
-	protected function getTestPath()
+
+    /**
+     * Get the path to store the test
+     *
+     * @return string
+     */
+    protected function getTestPath()
     {
-		return base_path() . '/tests/Feature/' . ucwords($this->option('model') . 'Test.php');
-	}
+        return base_path() . '/tests/Feature/' . ucwords($this->option('model') . 'Test.php');
+    }
 }
