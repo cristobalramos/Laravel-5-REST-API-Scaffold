@@ -94,20 +94,7 @@ class ScaffoldCreateCommand extends Command
         }
 
         if ($this->willCreate('migration')) {
-            $command = 'make:migration';
-            $args = [
-                'name' => 'create_' . strtolower($table) . '_table',
-            ];
-
-            if ($schema) {
-                $command .= ':schema';
-                $args['--schema'] = $schema;
-            }
-
-            $this->call(
-                $command,
-                $args
-            );
+            $this->makeMigration();
         }
         if ($this->willCreate('resource')) {
             $this->call('make:resource', ['name' => ucwords($model) . 'Resource']);
@@ -126,6 +113,30 @@ class ScaffoldCreateCommand extends Command
     protected function willCreate($concept)
     {
         return str_contains($this->option('create'), $concept);
+    }
+
+    protected function makeMigration()
+    {
+        $name = 'create_' . strtolower($table) . '_table';
+        $path = base_path() . "database/migrations/*${name}.php";
+        if ($this->files->exists($path)) {
+            return $this->error('Migration already exists!');
+        } else {
+            $command = 'make:migration';
+            $args = [
+                'name' => 'create_' . strtolower($table) . '_table',
+            ];
+
+            if ($schema) {
+                $command .= ':schema';
+                $args['--schema'] = $schema;
+            }
+
+            $this->call(
+                $command,
+                $args
+            );
+        }
     }
 
     protected function makeModel()
