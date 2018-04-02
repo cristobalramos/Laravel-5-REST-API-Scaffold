@@ -216,7 +216,7 @@ class ScaffoldCreateCommand extends Command
     }
 
     /**
-     * Compile the controller stub.
+     * Compile the seeder stub.
      *
      * @return string
      */
