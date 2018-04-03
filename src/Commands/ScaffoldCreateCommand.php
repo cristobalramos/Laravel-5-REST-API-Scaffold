@@ -117,6 +117,9 @@ class ScaffoldCreateCommand extends Command
 
     protected function makeMigration()
     {
+        $table = $this->option('table');
+        $schema = $this->option('schema');
+        
         $name = 'create_' . strtolower($table) . '_table';
         $path = base_path() . "database/migrations/*${name}.php";
         if ($this->files->exists($path)) {
